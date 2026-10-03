@@ -35,7 +35,7 @@ async with RealIndexerClient() as client:
         print(ticker.symbol)
 ```
 
-Read the [pagination limitation](API.md#pagination-limitation) before relying on complete results. Cursor preservation depends on the response envelope. The iterator does not detect repeated cursors; use `break` to stop early when appropriate.
+Ticker pages preserve `pagination.next_cursor` from the API; the iterator follows it until no next cursor is returned. See [pagination](API.md#pagination) for supported response shapes. The iterator does not detect repeated cursors; use `break` to stop early when appropriate.
 
 ## Filter requests
 
@@ -98,7 +98,7 @@ asyncio.run(main())
 | `ModuleNotFoundError: real_indexer` | Activate the environment and run `python -m pip install -e .`. |
 | Unsupported syntax or runtime | Use Python 3.10 or newer. |
 | Unclosed connections | Use `async with` or call `await client.close()`. |
-| Only one ticker page returned | Check the documented response-envelope limitation. |
+| Only one ticker page returned | Use `page.next_cursor` to request another page, or use `all_market_tickers()`. |
 | Unexpected return type | Non-ticker responses are returned after one envelope is removed; annotations do not validate JSON. |
 | HTTP 429 | Slow requests and implement bounded backoff in your application. |
 | An event loop is already running | In a notebook, use `await main()` instead of `asyncio.run(main())`. |

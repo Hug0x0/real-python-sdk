@@ -60,11 +60,13 @@ See [src/real_indexer/models.py](../src/real_indexer/models.py) for exact annota
 
 Prices and rates remain strings. For precise calculations, consider Python's `decimal.Decimal` instead of converting directly to `float`. Time fields ending in `_ms` represent milliseconds.
 
-### Pagination limitation
+### Pagination
 
-The request layer removes one top-level `data` envelope before ticker parsing. A response shaped as `{"data": [...], "next_cursor": "..."}` therefore loses its cursor. A nested page such as `{"data": {"data": [...], "next_cursor": "..."}}` preserves the cursor. Do not assume `all_market_tickers()` retrieved every page without checking the response shape of your indexer.
+Ticker pages preserve the API's `pagination.next_cursor` metadata alongside `data`. Pass `page.next_cursor` as `cursor` to request the next page, or use `all_market_tickers()` to follow cursors automatically until no next cursor is returned. A nonempty cursor may lead to an empty final page.
 
-Other methods return decoded JSON after this same unwrapping step. Their annotations do not normalize a nested page object into a list, and do not provide access to discarded outer pagination metadata.
+For compatibility, ticker parsing also accepts a top-level `next_cursor`, a nested page under `data`, and a bare list (with no cursor). The iterator does not detect repeated cursors; stop iteration explicitly when needed with a custom indexer.
+
+Other methods still return decoded JSON after one top-level `data` envelope is removed. Their annotations do not normalize a nested page object into a list, and they do not expose outer pagination metadata.
 
 ## Errors
 
