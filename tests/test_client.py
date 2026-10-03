@@ -15,3 +15,12 @@ async def test_raises_structured_error():
     async with RealIndexerClient(transport=transport) as client:
         with pytest.raises(RealAPIError) as error: await client.health()
         assert error.value.status == 429
+
+@pytest.mark.asyncio
+async def test_maps_pagination_fields():
+    def handler(request: httpx.Request):
+        assert request.url.params["p[s]"] == "25"
+        assert request.url.params["p[c]"] == "next"
+        return httpx.Response(200, json={"data": []})
+    async with RealIndexerClient(transport=httpx.MockTransport(handler)) as client:
+        await client.market_tickers(limit=25, cursor="next")
