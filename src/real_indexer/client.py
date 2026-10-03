@@ -26,7 +26,7 @@ class RealIndexerClient:
 
     async def health(self) -> dict[str, Any]: return await self._get("/health")
     async def market_tickers(self, *, cursor: str | None = None, limit: int = 100) -> Page[MarketTicker]:
-        payload = await self._get("/api/v1/markets/tickers", {"cursor": cursor, "limit": limit})
+        payload = await self._get("/api/v1/markets/tickers", {"p[c]": cursor, "p[s]": limit})
         if isinstance(payload, list): return Page([MarketTicker.from_dict(item) for item in payload])
         return Page([MarketTicker.from_dict(item) for item in payload.get("data", [])], payload.get("next_cursor"))
     async def all_market_tickers(self) -> AsyncIterator[MarketTicker]:
@@ -39,4 +39,4 @@ class RealIndexerClient:
     async def market_depth(self, market_id: str) -> dict[str, Any]: return await self._get(f"/api/v1/markets/{market_id}/depth")
     async def trades(self, **filters: Any) -> list[dict[str, Any]]: return await self._get("/api/v1/trades", filters)
     async def liquidations(self, **filters: Any) -> list[dict[str, Any]]: return await self._get("/api/v1/liquidations", filters)
-    async def funding_payments(self, *, market_id: str | None = None, account_id: str | None = None, limit: int = 100) -> list[dict[str, Any]]: return await self._get("/api/v1/funding-payments", {"f[market_ids]": market_id, "f[account_ids]": account_id, "limit": limit})
+    async def funding_payments(self, *, market_id: str | None = None, account_id: str | None = None, limit: int = 100) -> list[dict[str, Any]]: return await self._get("/api/v1/funding-payments", {"f[market_ids]": market_id, "f[account_ids]": account_id, "p[s]": limit})
