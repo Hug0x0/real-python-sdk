@@ -1,4 +1,4 @@
-# REAL Community Python SDK
+# REAL Python SDK
 
 Community-maintained Python client for the public REAL indexer API.
 
@@ -29,7 +29,7 @@ See [the example](examples/market-tickers.py), [supported operations](docs/API.m
 
 ## Related projects
 
-- [Typescript SDK](https://github.com/Hug0x0/real-community-typescript)
+- [Typescript SDK](https://github.com/Hug0x0/real-typescript-sdk)
 - [Original shared repository](https://github.com/Hug0x0/real-community-sdks)
 
 This repository retains the Python package history extracted from the original shared repository. Commit IDs changed during extraction.
