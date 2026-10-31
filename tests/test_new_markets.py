@@ -1,4 +1,4 @@
-"""Regression coverage for dynamically discovered HYPE and SOL markets."""
+"""Regression coverage for dynamically discovered markets, including XRP and XAUT."""
 import httpx
 import pytest
 
@@ -6,11 +6,17 @@ from real_indexer import RealIndexerClient
 
 
 @pytest.mark.asyncio
-async def test_hype_and_sol_discovery_pagination_and_depth():
-    markets = [
+@pytest.mark.parametrize("markets", [
+    [
         ("HYPE-USDT", "0x7fa781f5e1d1da7165cf96e5a6898235f55f2d812dd429d3feed69ff776dfa70"),
         ("SOL-USDT", "0xca22f2b22f8c16be70d29e5cc8434bedb778c51d6cb224b64c3ee7d152567936"),
-    ]
+    ],
+    [
+        ("XRP-USDT", "0xc314a4bc10a6937259f74d480ced63f55add6de39b13b983eea74bbb319c6d98"),
+        ("XAUT-USDT", "0x16e576efa4a6f5e27380390c100196c91f89abc5e07307d0e342ed0e61823cd6"),
+    ],
+], ids=["hype-sol", "xrp-xaut"])
+async def test_market_discovery_pagination_and_depth(markets):
     cursors = []
     depth_ids = []
 
@@ -19,7 +25,7 @@ async def test_hype_and_sol_discovery_pagination_and_depth():
             cursor = request.url.params.get("p[c]")
             cursors.append(cursor)
             assert len(cursors) <= 2
-            assert cursor in (None, "sol-page")
+            assert cursor in (None, "next-page")
             symbol, market_id = markets[0 if cursor is None else 1]
             return httpx.Response(200, json={
                 "data": [{
@@ -30,7 +36,7 @@ async def test_hype_and_sol_discovery_pagination_and_depth():
                     "volume_24h": "12.34",
                     "effective_mode": "ContinuousTrading",
                 }],
-                "pagination": {"next_cursor": "sol-page" if cursor is None else None},
+                "pagination": {"next_cursor": "next-page" if cursor is None else None},
             })
         market_id = request.url.path.split("/")[-2]
         assert request.url.path == f"/api/v1/markets/{market_id}/depth"
@@ -50,5 +56,5 @@ async def test_hype_and_sol_discovery_pagination_and_depth():
             depth = await client.market_depth(ticker.market_id)
             assert depth["market_id"] == ticker.market_id
             assert depth["buys"] and depth["sells"]
-    assert cursors == [None, "sol-page"]
+    assert cursors == [None, "next-page"]
     assert depth_ids == [item[1] for item in markets]
