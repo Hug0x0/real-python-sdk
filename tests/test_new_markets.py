@@ -1,4 +1,4 @@
-"""Regression coverage for dynamically discovered markets, including XRP and XAUT."""
+"""Regression coverage for dynamically discovered markets, including the newer XRP, XAUT, BNB, ZEC, LIT, NEAR, XMR and ENA markets."""
 import httpx
 import pytest
 
@@ -15,7 +15,19 @@ from real_indexer import RealIndexerClient
         ("XRP-USDT", "0xc314a4bc10a6937259f74d480ced63f55add6de39b13b983eea74bbb319c6d98"),
         ("XAUT-USDT", "0x16e576efa4a6f5e27380390c100196c91f89abc5e07307d0e342ed0e61823cd6"),
     ],
-], ids=["hype-sol", "xrp-xaut"])
+    [
+        ("BNB-USDT", "0x8a7c11d4d1aa1383658eda14cca21be864fe21c911277d4fb2caeb0364f53e68"),
+        ("ZEC-USDT", "0x0255d21d230632a4963ae67ba6e543f9d2a80b1d5a3069fd84da525124bfcd66"),
+    ],
+    [
+        ("LIT-USDT", "0xd77974a7c47965d7cdbb7f13b238aecab4fa6d2d9995317fe05136d03c778114"),
+        ("NEAR-USDT", "0x0bcb88ff6a2c7b394e2579bd0ef659d6344143f9d3e0dd8fb64e86300bc2f010"),
+    ],
+    [
+        ("XMR-USDT", "0x8def23de67380cb320decaa86398baad39e7744d07373a4f88e039fd827f4635"),
+        ("ENA-USDT", "0xe6bcdc29b032c00b3614c6d9236f601fb5a15670f1c9aa7aeab8ddee86fdba38"),
+    ],
+], ids=["hype-sol", "xrp-xaut", "bnb-zec", "lit-near", "xmr-ena"])
 async def test_market_discovery_pagination_and_depth(markets):
     cursors = []
     depth_ids = []
