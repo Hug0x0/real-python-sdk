@@ -76,3 +76,25 @@ async def test_trade_response_still_unwraps_data():
     }))
     async with RealIndexerClient(transport=transport) as client:
         assert await client.trades() == rows
+
+
+def test_ticker_exposes_24h_statistics():
+    from real_indexer.models import MarketTicker
+
+    ticker = MarketTicker.from_dict({
+        "market_id": "btc", "symbol": "BTC-USDT", "mark_price": "60122.3", "index_price": "60122.3",
+        "volume_24h": "10.2988", "turnover_24h": "624771.19", "open_interest": "0.9623",
+        "last_traded_price": "60083.3", "prev_price_24h": "62927.5", "price_change_24h": "-0.0451980453696714",
+        "high_price_24h": "63624.4", "low_price_24h": "59358.4", "volume_change_24h": "-0.6287249",
+        "updated_at_ms": 1795532782848, "unknown_future_field": "ignored",
+    })
+    assert float(ticker.last_traded_price) / float(ticker.prev_price_24h) - 1 == pytest.approx(float(ticker.price_change_24h))
+    assert (ticker.high_price_24h, ticker.low_price_24h, ticker.volume_change_24h) == ("63624.4", "59358.4", "-0.6287249")
+    assert (ticker.turnover_24h, ticker.open_interest, ticker.updated_at_ms) == ("624771.19", "0.9623", 1795532782848)
+
+
+def test_ticker_tolerates_indexers_without_24h_statistics():
+    from real_indexer.models import MarketTicker
+
+    ticker = MarketTicker.from_dict({"market_id": "btc", "symbol": "BTC-USDT", "mark_price": "1", "index_price": "1", "volume_24h": "0"})
+    assert ticker.price_change_24h is None and ticker.high_price_24h is None
